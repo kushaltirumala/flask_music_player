@@ -1,0 +1,14 @@
+html, body {
+	font-family: 'Lato', sans-serif;
+}
+
+#intro {
+}
+
+.sec {
+	background-color: white;
+	text-align: center;
+	margin: 30px;
+	font-weight: 300;
+}
+
