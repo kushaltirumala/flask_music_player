@@ -15,11 +15,12 @@ def index():
 	resp.set_cookie('user_id', user_id)
 	return resp
 
-@app.route('/start_game', methods=['GET'])
+@app.route('/start_game')
 def start_game():
-	print 'hi'
 	return render_template('main_game.html')
 
 
+
+
 if __name__ == '__main__':
-   	app.run(debug = False)
+   	app.run(debug = True)

@@ -5,12 +5,85 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
-	<link href="../static/main.css" rel="stylesheet">
 </head>
 <html>
 	<body>
-		<div class="sec" id="intro">
-    		<h1>hi</h1>
+		<div class="intro" id="intro_donny">
+    		<h1>Meet Donny. He wants to eat a donut.</h1>
+    		<canvas height=300 width=300 id="canvas_donny"></canvas>
     	</div>
 	</body>
+	<script>
+		function Sprite(img, height, width) {
+		this.img = img;
+		this.height = height;
+		this.width = width;
+	}
+
+	Sprite.prototype.draw = function(px, py) {
+		context.drawImage(this.img, px, py, this.width, this.height);
+	};
+
+	function Point() {
+		this.height = 10;
+		this.width = 10
+	}
+
+	Point.prototype.draw = function(px, py) {
+		context.fillRect(px, py, this.height, this.width)
+	}
+	
+	function keyEvent(evt) {
+		switch(evt.keyCode) {
+			case 37:
+				donny.moveRight();
+		}
+	}
+
+	x = 20;
+	keys=[];
+	window.addEventListener('keydown', function(e) {
+		if (e.keyCode == 37) {
+			x+= 10;
+			context.clearRect(20,20, 10, 10);
+			context.beginPath();
+			context.arc(x, 20, 5, 0, Math.Pi * 2);
+			context.fill();
+		}
+	});
+
+	var context = document.getElementById('canvas_donny').getContext("2d");
+
+
+
+	// create donny
+	// var img = new Image();
+	// img.src = 'https://opengameart.org/sites/default/files/player_19.png';
+	// img.style.height = "10%";
+	// img.style.width='10%';
+
+
+	// var donny = new Sprite(img, 300, 200);
+	// donny.draw(20, 20);
+
+	var donny = new Point();
+	donny.draw(20,20);
+
+
+
+	
+
+
+
+	</script>
+	<style>
+		html, body {
+			font-family: 'Lato', sans-serif;
+			color:black;
+			text-align: center;
+		}
+
+
+
+	</style>
 </html>

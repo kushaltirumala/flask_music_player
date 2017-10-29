@@ -11,18 +11,8 @@
 	<body>
 		<div class="sec" id="intro">
     		<h1>donut adventure</h1>
-    		<p>click any button to begin!</p>
+    		<p>click to begin!</p>
+    		<a id="begin" href="/start_game">click here!</a>
     	</div>
 	</body>
-	<script>
-		window.onkeydown = function(e) {
-			$.ajax({
-				type:'GET',
-				url:'/start_game',
-				success: function(resp) {
-					console.log(resp);
-				}
-			})
-		}
-	</script>
 </html>
