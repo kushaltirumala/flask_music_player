@@ -91,9 +91,35 @@
 	}
 
 	Donut.prototype.draw = function() {
-		context.fillRect(this.x, this.y, this.height, this.width);
+		context.fillRect(this.x, this.y, this.width, this.height);
 	}
 
+
+	// Rectangle object
+	function rectangleObstacle(start_x, start_y) {
+		this.x = start_x;
+		this.y = start_y;
+		this.height = 30;
+		this.width = 10;
+		this.direction = 1;
+	}
+
+	rectangleObstacle.prototype.init = function() {
+		context.fillRect(this.x, this.y, this.width, this.height);
+	}
+
+	rectangleObstacle.prototype.draw = function() {
+		context.clearRect(this.x, this.y, this.width, this.height);
+
+		this.y += 3*this.direction;
+
+		if(this.y > canvas.height || this.y < 0) {
+			this.direction *= -1;
+			this.y = this.y*this.direction;
+		}
+
+		context.fillRect(this.x, this.y, this.width, this.height);
+	}
 
 
 	var donut;
@@ -178,7 +204,9 @@
 	}
 
 	function drawObstacles() {
-		console.log('drawing obstacles');
+		var rect1 = new rectangleObstacle(canvas.width/2, canvas.height/2);
+		rect1.init();
+		setInterval(function() {rect1.draw()}, 10);
 	}
 
 	function resetDonny() {
