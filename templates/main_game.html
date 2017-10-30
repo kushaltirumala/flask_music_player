@@ -10,49 +10,92 @@
 	<body>
 		<div class="intro" id="intro_donny">
     		<h1>Meet Donny. He wants to eat a donut.</h1>
-    		<canvas height=300 width=300 id="canvas_donny"></canvas>
+    		<p id="tut_step">(try moving around using arrow keys; press space to continue)</p>
     	</div>
+    	<canvas id="canvas_donny"></canvas>
+    	
 	</body>
 	<script>
-		function Sprite(img, height, width) {
-		this.img = img;
-		this.height = height;
-		this.width = width;
-	}
+	var canvas = document.getElementById('canvas_donny');
+	var context = canvas.getContext("2d");
 
-	Sprite.prototype.draw = function(px, py) {
-		context.drawImage(this.img, px, py, this.width, this.height);
-	};
+	var tutorial_step = 0;
 
-	function Point() {
+	canvas.width = window.innerWidth-100;
+	canvas.height = window.innerHeight-100;
+
+
+	function Point(px, py) {
+		this.x = px;
+		this.y = py;
 		this.height = 10;
 		this.width = 10
 	}
 
-	Point.prototype.draw = function(px, py) {
-		context.fillRect(px, py, this.height, this.width)
-	}
-	
-	function keyEvent(evt) {
-		switch(evt.keyCode) {
-			case 37:
-				donny.moveRight();
-		}
+	Point.prototype.draw = function() {
+		context.fillRect(this.x, this.y, this.height, this.width)
 	}
 
+	Point.prototype.moveLeft = function() {
+		this.x -= 10;
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		context.fillRect(this.x, this.y, this.height, this.width);
+	};
+
+	Point.prototype.moveRight = function() {
+		this.x += 10;
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		context.fillRect(this.x, this.y, this.height, this.width);
+	};
+
+	Point.prototype.moveUp = function() {
+		this.y -= 10;
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		context.fillRect(this.x, this.y, this.height, this.width);
+	};
+
+	Point.prototype.moveDown = function() {
+		this.y += 10;
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		context.fillRect(this.x, this.y, this.height, this.width);
+	};
+
+	var donny = new Point(20,20);
+	donny.draw();
+
+
+	var point_boss, line_boss, plane_boss;
+
 	x = 20;
-	keys=[];
 	window.addEventListener('keydown', function(e) {
 		if (e.keyCode == 37) {
-			x+= 10;
-			context.clearRect(20,20, 10, 10);
-			context.beginPath();
-			context.arc(x, 20, 5, 0, Math.Pi * 2);
-			context.fill();
+			e.preventDefault();
+			donny.moveLeft();
+		} else if(e.keyCode == 39) {
+			e.preventDefault();
+			donny.moveRight();
+		} else if (e.keyCode == 38) {
+			donny.moveUp();
+		} else if (e.keyCode == 40) {
+			donny.moveDown();
+		} else if(e.keyCode == 32) {
+			switchText(tutorial_step);
+			tutorial_step++;
 		}
 	});
 
-	var context = document.getElementById('canvas_donny').getContext("2d");
+	function switchText(tutorial_step) {
+		switch (tutorial_step) {
+			case 0:
+				$('#tut_step').text("click space to attack the boss");
+				context.fillStyle = "red";
+				point_boss = new Point(canvas.width-20, canvas.height-20);
+				point_boss.draw();
+				context.fillStyle = "black";
+		}	
+
+	}
+
 
 
 
@@ -66,8 +109,6 @@
 	// var donny = new Sprite(img, 300, 200);
 	// donny.draw(20, 20);
 
-	var donny = new Point();
-	donny.draw(20,20);
 
 
 
@@ -81,6 +122,11 @@
 			font-family: 'Lato', sans-serif;
 			color:black;
 			text-align: center;
+		}
+
+		#intro_donny {
+			height:40px;
+			width:100%;
 		}
 
 
