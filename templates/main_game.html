@@ -11,7 +11,12 @@
 		<div class="intro" id="intro_donny">
     		<h1>Meet Donny. He wants to eat a donut.</h1>
     		<p id="tut_step">(try moving around using arrow keys; press space to continue)</p>
+    		<p id="health">Health: <span id="health_num" style="color:red">3</span></p>
     	</div>
+    	<div id="dimmer">
+    		<h1 style="color:white; font-size: 60px;">Game over!</h1>
+    		<a style="text-align: center; vertical-align: middle; line-height: 60px; font-size: 40px; color:white;" href="/">start over</a>
+    	</div> 
     	<canvas id="canvas_donny"></canvas>
     	
 	</body>
@@ -21,7 +26,7 @@
 	var attack_audio = new Audio('static/music/attack.mp3');
     var damage_audio = new Audio('static/music/damaged.mp3');
     var win_audio = new Audio('static/music/cheer.mp3');
-    var gameo_udio = new Audio('static/music/respectfully_resigned.wav');
+    var lose_audio = new Audio('static/music/respectfully_resigned.wav');
     var nextLevel = false;
 
 
@@ -72,6 +77,29 @@
 		context.fillRect(this.x, this.y, this.height, this.width);
 	};
 
+	PointPlayer.prototype.reset = function() {
+		context.clearRect(this.x, this.y, this.width, this.height);
+		this.x = 400;
+		this.y = 350;
+		this.width = 10;
+		this.height = 10;
+		this.health = 3;
+		context.fillRect(this.x, this.y, this.width, this.height);
+	};
+
+	PointPlayer.prototype.healthDown = function() {
+		this.health -= 1;
+		if (this.health < 1) {
+			background_audio.pause();
+			background_audio.currentTime = 0;
+			lose_audio.play();
+			resetDonny();
+			$("#dimmer").fadeIn(500);
+		}
+		$("#health_num").text(this.health);
+		damage_audio.play();
+	};
+
 	function checkIntersecting(rect_a, rect_b) {
 		var ans = false;
 		if (rect_a.x >= rect_b.x && rect_a.x <= rect_b.x + rect_b.width &&
@@ -88,20 +116,27 @@
 		this.y = py;
 		this.height = 20;
 		this.width = 20;
+		this.health = 3;
 	}
 
 	Donut.prototype.draw = function() {
+		context.fillStyle = "red";
 		context.fillRect(this.x, this.y, this.width, this.height);
+		context.fillStyle = "black";
+	}
+
+	Donut.prototype.clear = function() {
+		context.clearRect(this.x, this.y, this.weight, this.height);
 	}
 
 
 	// Rectangle object
-	function rectangleObstacle(start_x, start_y) {
+	function rectangleObstacle(start_x, start_y, direction) {
 		this.x = start_x;
 		this.y = start_y;
 		this.height = 30;
 		this.width = 10;
-		this.direction = 1;
+		this.direction = direction;
 	}
 
 	rectangleObstacle.prototype.init = function() {
@@ -111,9 +146,9 @@
 	rectangleObstacle.prototype.draw = function() {
 		context.clearRect(this.x, this.y, this.width, this.height);
 
-		this.y += 3*this.direction;
+		this.y += 10*this.direction;
 
-		if(this.y > canvas.height || this.y < 0) {
+		if(this.y > canvas.height - 100 || this.y < 100) {
 			this.direction *= -1;
 			this.y = this.y*this.direction;
 		}
@@ -124,7 +159,7 @@
 
 	var donut;
 
-	var donny = new PointPlayer(20,20);
+	var donny = new PointPlayer(500,350); 
 	donny.draw();
 
 
@@ -133,7 +168,7 @@
 		if (e.keyCode == 37) {
 			e.preventDefault();
 			donny.moveLeft();
-			if(tutorial_step ==1) {
+			if(tutorial_step > 0) {
 				if(checkIntersecting(donny, donut)) {
 					nextLevel = true;
 					attack_audio.play();
@@ -143,17 +178,16 @@
 		} else if(e.keyCode == 39) {
 			e.preventDefault();
 			donny.moveRight();
-			if(tutorial_step ==1) {
+			if(tutorial_step > 0) {
 				if(checkIntersecting(donny, donut)) {
 					nextLevel = true;
-
 					attack_audio.play();
 
 				}
 			} 
 		} else if (e.keyCode == 38) {
 			donny.moveUp();
-			if(tutorial_step ==1) {
+			if(tutorial_step > 0) {
 				if(checkIntersecting(donny, donut)) {
 					nextLevel = true;
 					attack_audio.play();
@@ -162,7 +196,7 @@
 			} 
 		} else if (e.keyCode == 40) {
 			donny.moveDown();
-			if(tutorial_step ==1) {
+			if(tutorial_step > 0) {
 				if(checkIntersecting(donny, donut)) {
 					nextLevel = true;
 					attack_audio.play();
@@ -182,36 +216,77 @@
 	}
 	);
 
+
+
+
+
 	function switchLevel(tutorial_step) {
 		switch (tutorial_step) {
 			case 1:
-				$('#tut_step').text("Level 1: go over the donut to eat it (press space to continue)");
-				context.fillStyle = "red";
+				$('#tut_step').text("Tutorial: go over the donut to eat it (press space to continue)");
 				donut = new Donut(canvas.width/2, canvas.height/2);
 				donut.draw();
-				context.fillStyle = "black";
 				break;
 			case 2: 
-				$('#tut_step').text("Level 2: avoid the obstacles!");
+				$('#tut_step').text("Level 1: avoid the obstacles! (press space to continue)");
 				background_audio.pause();
 				background_audio.currentTime = 0;
 				background_audio.play();
 				resetDonny();
 				drawObstacles();
 				break;
+			case 3:
+				console.log('boss level!');
+				background_audio.pause();
+				background_audio.currentTime = 0;
+				boss_audio.play();
+				$('#tut_step').text("Level 2: Defeat the boss! (press to space to claim your beautiful prize)");
+				drawBoss();
 		}	
 
 	}
 
+	function drawBoss() {
+		//draw the boss level
+		console.log('draw the boss');
+
+
+	}
 	function drawObstacles() {
-		var rect1 = new rectangleObstacle(canvas.width/2, canvas.height/2);
+		console.log('drawing obstacles');
+		var rect1 = new rectangleObstacle(canvas.width/2, canvas.height/2, 1);
+		var rect2 = new rectangleObstacle(canvas.width/2 - 100, canvas.height/2 + 10, -1);
+		var rect3 = new rectangleObstacle(canvas.width/2 + 100, canvas.height/2 + 20, -1);
+		var rect4 = new rectangleObstacle(canvas.width/2 - 200, canvas.height/2 + 20, 1);
+		var rect5 = new rectangleObstacle(canvas.width/2 + 200, canvas.height/2 + 20, 1);
 		rect1.init();
-		setInterval(function() {rect1.draw()}, 10);
+		rect2.init();
+		rect3.init();
+		rect4.init();
+		rect5.init();
+		var refreshID = setInterval(function() {
+			if(checkIntersecting(rect1, donny) || checkIntersecting(rect2, donny) || checkIntersecting(rect3, donny) || checkIntersecting(rect4, donny) ||
+				checkIntersecting(rect5, donny)) {
+				console.log("donny hit a block");
+				donny.healthDown();
+
+			}
+			rect1.draw();
+			rect2.draw();
+			rect3.draw();
+			rect4.draw();
+			rect5.draw();
+		}, 20);
 	}
 
 	function resetDonny() {
-		console.log('resetting donny');
+		console.log('reset donny');
+		donny.reset();
+		donut.clear();
+		donut = new Donut(canvas.width-40, canvas.height/2);
+		donut.draw();
 	}
+
 
 
 
@@ -246,6 +321,18 @@
 			width:100%;
 		}
 
+		#dimmer
+		{
+		    background:#000;
+		    opacity:0.95;
+		    position:fixed; 
+		    top:0;
+		    left:0;
+		    width:100%;
+		    height:100%;
+		    display:none;
+		    z-index:9999; 
+		}
 
 
 	</style>

@@ -20,7 +20,5 @@ def start_game():
 	return render_template('main_game.html')
 
 
-
-
 if __name__ == '__main__':
-   	app.run(debug = True)
+   	app.run(port=port, threaded=True, debug = True)
