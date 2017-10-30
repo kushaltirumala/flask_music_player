@@ -5,18 +5,60 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 
-	<link href="../static/main.css" rel="stylesheet">
 </head>
 <html>
 	<body>
 		<div class="sec" id="intro">
-    		<h1>donut adventure</h1>
-    		<p>click to begin!</p>
-    		<a id="begin" href="/start_game">click here!</a>
+    		<h1 id="title">donut adventure</h1>
+    		<p>help donny the dot get his donut</p>
+    		
+    	</div>
+    	<div class="sec">
+    		<a id="begin" class="element" href="/start_game">click to begin!</a>
     	</div>
 	</body>
 	<script>
 		var background_audio = new Audio('static/music/adventure_awaits.mp3');
 		background_audio.play();
 	</script>
+
+	<style>
+	html, body {
+	font-family: 'Lato', sans-serif;
+	}
+
+
+
+	.sec {
+		background-color: white;
+		text-align: center;
+		padding:10px;
+		font-weight: 300;
+	}
+
+
+	#intro {
+		margin:5%;
+	}
+
+	#title {
+		font-size: 60px;
+	}
+
+	#begin {
+	  line-height: 55px;
+	  color: black;
+	  text-decoration: none;
+	  padding:20px 40px 20px 40px;
+	  margin:0px;
+	  border: black solid 2px;
+	  font-size:25px;
+	}
+
+	#begin:hover {
+	  background-color: black;
+	  color:white;
+	}
+	
+	</style>
 </html>

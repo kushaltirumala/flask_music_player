@@ -9,7 +9,7 @@
 <html>
 	<body>
 		<div class="intro" id="intro_donny">
-    		<h1>Meet Donny. He wants to eat a donut.</h1>
+    		<h1>Meet Donny the dot. He wants to eat a donut.</h1>
     		<p id="tut_step">(try moving around using arrow keys; press space to continue)</p>
     		<p id="health">Health: <span id="health_num" style="color:red">3</span></p>
     	</div>
@@ -36,6 +36,7 @@
     var lose_audio = new Audio('static/music/respectfully_resigned.wav');
     var nextLevel = false;
 
+    var game_won = false;
 
 	var canvas = document.getElementById('canvas_donny');
 	var context = canvas.getContext("2d");
@@ -171,18 +172,19 @@
 		this.x = 30;
 		this.y = 30;
 		this.velocity = 2.5;
+		this.radius = 13;
 	}
 
 	Boss.prototype.init = function() {
 		context.beginPath();
-    	context.arc(this.x, this.y, 13, Math.PI / 7, -Math.PI / 7, false);
+    	context.arc(this.x, this.y, this.radius, Math.PI / 7, -Math.PI / 7, false);
     	context.lineTo(31, 37);
     	context.fill();
 	}
 
 	Boss.prototype.draw = function () {
 
-		context.clearRect(this.x, this.y, 13, 13);
+		context.clearRect(this.x, this.y, this.radius, this.radius);
 
     	dx = donny.x - this.x;
     	dy = donny.y - this.y;
@@ -289,14 +291,21 @@
 				drawBoss();
 				break;
 			case 4:
+				game_won = true;
 				boss_audio.pause();
 				adventure_audio.play();
 				resetDonny();
 				$("#gamewin").fadeIn(500);
 				break;
-
 		}	
 
+	}
+
+	function intersectingWithBoss(boss, donny) {
+
+		return (donny.x >= boss.x || donny.x <=boss.x+boss.radius &&
+			donny.y >= boss.y && donny.y <= boss.y + radius) 
+			
 	}
 
 	function drawBoss() {
@@ -305,6 +314,16 @@
 		var boss = new Boss(50, 50);
 		boss.init();
 		var refreshID = setInterval(function() {
+			if(checkIntersecting(boss, donny)) {
+				if (!game_won) {
+					console.log('donny hit the boss')
+					boss_audio.pause();
+					boss_audio.currentTime = 0;
+					lose_audio.play();
+					resetDonny();
+					$("#dimmer").fadeIn(500);
+				}
+			}
 			boss.draw();
 		}, 20);
 
