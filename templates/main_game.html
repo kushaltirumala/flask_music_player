@@ -16,84 +16,173 @@
     	
 	</body>
 	<script>
+	var boss_audio = new Audio('static/music/fantasy_boss.mp3');
+	var background_audio = new Audio('static/music/fantasy_town.mp3');
+	var attack_audio = new Audio('static/music/attack.mp3');
+    var damage_audio = new Audio('static/music/damaged.mp3');
+    var win_audio = new Audio('static/music/cheer.mp3');
+    var gameo_udio = new Audio('static/music/respectfully_resigned.wav');
+    var nextLevel = false;
+
+
 	var canvas = document.getElementById('canvas_donny');
 	var context = canvas.getContext("2d");
+
+	background_audio.play();
 
 	var tutorial_step = 0;
 
 	canvas.width = window.innerWidth-100;
 	canvas.height = window.innerHeight-100;
 
+	// Point player
 
-	function Point(px, py) {
+	function PointPlayer(px, py) {
 		this.x = px;
 		this.y = py;
 		this.height = 10;
 		this.width = 10
 	}
 
-	Point.prototype.draw = function() {
+	PointPlayer.prototype.draw = function() {
 		context.fillRect(this.x, this.y, this.height, this.width)
 	}
 
-	Point.prototype.moveLeft = function() {
+	PointPlayer.prototype.moveLeft = function() {
+		context.clearRect(this.x, this.y, this.width, this.height);
 		this.x -= 10;
-		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.fillRect(this.x, this.y, this.height, this.width);
 	};
 
-	Point.prototype.moveRight = function() {
+	PointPlayer.prototype.moveRight = function() {
+		context.clearRect(this.x, this.y, this.width, this.height);
 		this.x += 10;
-		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.fillRect(this.x, this.y, this.height, this.width);
 	};
 
-	Point.prototype.moveUp = function() {
+	PointPlayer.prototype.moveUp = function() {
+		context.clearRect(this.x, this.y, this.width, this.height);
 		this.y -= 10;
-		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.fillRect(this.x, this.y, this.height, this.width);
 	};
 
-	Point.prototype.moveDown = function() {
+	PointPlayer.prototype.moveDown = function() {
+		context.clearRect(this.x, this.y, this.width, this.height);
 		this.y += 10;
-		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.fillRect(this.x, this.y, this.height, this.width);
 	};
 
-	var donny = new Point(20,20);
+	function checkIntersecting(rect_a, rect_b) {
+		var ans = false;
+		if (rect_a.x >= rect_b.x && rect_a.x <= rect_b.x + rect_b.width &&
+			rect_a.y >= rect_b.y && rect_a.y <= rect_b.y + rect_b.height) {
+			ans = true;
+		} 
+		return ans;
+	}
+
+	// Point Boss
+
+	function Donut(px, py) {
+		this.x = px;
+		this.y = py;
+		this.height = 20;
+		this.width = 20;
+	}
+
+	Donut.prototype.draw = function() {
+		context.fillRect(this.x, this.y, this.height, this.width);
+	}
+
+
+
+	var donut;
+
+	var donny = new PointPlayer(20,20);
 	donny.draw();
 
-
-	var point_boss, line_boss, plane_boss;
 
 	x = 20;
 	window.addEventListener('keydown', function(e) {
 		if (e.keyCode == 37) {
 			e.preventDefault();
 			donny.moveLeft();
+			if(tutorial_step ==1) {
+				if(checkIntersecting(donny, donut)) {
+					nextLevel = true;
+					attack_audio.play();
+
+				}
+			} 
 		} else if(e.keyCode == 39) {
 			e.preventDefault();
 			donny.moveRight();
+			if(tutorial_step ==1) {
+				if(checkIntersecting(donny, donut)) {
+					nextLevel = true;
+
+					attack_audio.play();
+
+				}
+			} 
 		} else if (e.keyCode == 38) {
 			donny.moveUp();
+			if(tutorial_step ==1) {
+				if(checkIntersecting(donny, donut)) {
+					nextLevel = true;
+					attack_audio.play();
+
+				}
+			} 
 		} else if (e.keyCode == 40) {
 			donny.moveDown();
-		} else if(e.keyCode == 32) {
-			switchText(tutorial_step);
-			tutorial_step++;
-		}
-	});
+			if(tutorial_step ==1) {
+				if(checkIntersecting(donny, donut)) {
+					nextLevel = true;
+					attack_audio.play();
 
-	function switchText(tutorial_step) {
+				}
+			} 
+		} else if(e.keyCode == 32) {
+			if (nextLevel || tutorial_step == 0) {
+				win_audio.play();
+				tutorial_step++;
+				console.log('switching to step: '+ tutorial_step)
+				switchLevel(tutorial_step);
+				nextLevel = false;
+			}
+
+		}
+	}
+	);
+
+	function switchLevel(tutorial_step) {
 		switch (tutorial_step) {
-			case 0:
-				$('#tut_step').text("click space to attack the boss");
+			case 1:
+				$('#tut_step').text("Level 1: go over the donut to eat it (press space to continue)");
 				context.fillStyle = "red";
-				point_boss = new Point(canvas.width-20, canvas.height-20);
-				point_boss.draw();
+				donut = new Donut(canvas.width/2, canvas.height/2);
+				donut.draw();
 				context.fillStyle = "black";
+				break;
+			case 2: 
+				$('#tut_step').text("Level 2: avoid the obstacles!");
+				background_audio.pause();
+				background_audio.currentTime = 0;
+				background_audio.play();
+				resetDonny();
+				drawObstacles();
+				break;
 		}	
 
+	}
+
+	function drawObstacles() {
+		console.log('drawing obstacles');
+	}
+
+	function resetDonny() {
+		console.log('resetting donny');
 	}
 
 
