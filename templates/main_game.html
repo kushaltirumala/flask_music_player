@@ -17,10 +17,17 @@
     		<h1 style="color:white; font-size: 60px;">Game over!</h1>
     		<a style="text-align: center; vertical-align: middle; line-height: 60px; font-size: 40px; color:white;" href="/">start over</a>
     	</div> 
+
+    	<div id="gamewin">
+    		<h1 style="color:white; font-size: 60px;">Congratulations! Donny got his donut.</h1>
+    		<p style="color:white;">Since all good things come in threes, that's all the levels for now</p>
+    		<a style="text-align: center; vertical-align: middle; line-height: 60px; font-size: 40px; color:white;" href="/">start over</a>
+    	</div>
     	<canvas id="canvas_donny"></canvas>
     	
 	</body>
 	<script>
+	var adventure_audio = new Audio('static/music/adventure_awaits.mp3');
 	var boss_audio = new Audio('static/music/fantasy_boss.mp3');
 	var background_audio = new Audio('static/music/fantasy_town.mp3');
 	var attack_audio = new Audio('static/music/attack.mp3');
@@ -156,6 +163,43 @@
 		context.fillRect(this.x, this.y, this.width, this.height);
 	}
 
+	rectangleObstacle.prototype.clear = function() {
+		context.clearRect(this.x, this.y, this.width, this.height);
+	}
+
+	function Boss() {
+		this.x = 30;
+		this.y = 30;
+		this.velocity = 3;
+	}
+
+	Boss.prototype.init = function() {
+		context.beginPath();
+    	context.arc(this.x, this.y, 13, Math.PI / 7, -Math.PI / 7, false);
+    	context.lineTo(31, 37);
+    	context.fill();
+	}
+
+	Boss.prototype.draw = function () {
+
+		context.clearRect(this.x, this.y, 13, 13);
+
+    	dx = donny.x - this.x;
+    	dy = donny.y - this.y;
+    	angle = Math.atan2(dy, dx);
+    	xVel = this.velocity * Math.cos(angle);
+    	yVel = this.velocity * Math.sin(angle);
+
+    	this.x += xVel;
+    	this.y += yVel;
+
+    	context.beginPath();
+    	context.arc(this.x, this.y, 13, Math.PI / 7, -Math.PI / 7, false);
+    	context.lineTo(this.x, this.x);
+    	context.fill();
+
+	}
+
 
 	var donut;
 
@@ -236,12 +280,21 @@
 				drawObstacles();
 				break;
 			case 3:
+				$('#tut_step').text("Level 2: Defeat the boss! (press to space to claim your beautiful prize)");
 				console.log('boss level!');
 				background_audio.pause();
 				background_audio.currentTime = 0;
 				boss_audio.play();
-				$('#tut_step').text("Level 2: Defeat the boss! (press to space to claim your beautiful prize)");
+				resetDonny();
 				drawBoss();
+				break;
+			case 4:
+				boss_audio.pause();
+				adventure_audio.play();
+				resetDonny();
+				$("#gamewin").fadeIn(500);
+				break;
+
 		}	
 
 	}
@@ -249,6 +302,11 @@
 	function drawBoss() {
 		//draw the boss level
 		console.log('draw the boss');
+		var boss = new Boss(50, 50);
+		boss.init();
+		var refreshID = setInterval(function() {
+			boss.draw();
+		}, 20);
 
 
 	}
@@ -269,6 +327,9 @@
 				checkIntersecting(rect5, donny)) {
 				console.log("donny hit a block");
 				donny.healthDown();
+				if (nextLevel) {
+					clearInterval(refreshID);
+				}
 
 			}
 			rect1.draw();
@@ -277,12 +338,14 @@
 			rect4.draw();
 			rect5.draw();
 		}, 20);
+
+
 	}
 
 	function resetDonny() {
 		console.log('reset donny');
+		context.clearRect(0, 0, canvas.width, canvas.height);
 		donny.reset();
-		donut.clear();
 		donut = new Donut(canvas.width-40, canvas.height/2);
 		donut.draw();
 	}
@@ -332,6 +395,20 @@
 		    height:100%;
 		    display:none;
 		    z-index:9999; 
+		}
+
+
+		#gamewin
+		{
+		    background:#000;
+		    opacity:0.95;
+		    position:fixed; 
+		    top:0;
+		    left:0;
+		    width:100%;
+		    height:100%;
+		    display:none;
+		    z-index:9998; 
 		}
 
 
